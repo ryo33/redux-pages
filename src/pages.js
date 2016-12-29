@@ -1,4 +1,5 @@
 const PathTemplate = require('@ryo33/path-template')
+const equal = require('deep-equal')
 const Page = require('./page.js')
 const { CHANGE_PAGE, changePage } = require('./action.js')
 
@@ -35,16 +36,20 @@ module.exports = class Pages {
     return page
   }
 
+  _mapParams(name, params) {
+    const mapper = this.mappers[name]
+    Object.keys(mapper).forEach(key => {
+      params[key] = mapper[key](params[key])
+    })
+  }
+
   match(path) {
     for (let i = 0; i < this.pagesList.length; i ++) {
       const page = this.pagesList[i]
       const params = PathTemplate.match(page.template, path)
       if (typeof params !== 'undefined') {
         const name = page.name
-        const mapper = this.mappers[name]
-        Object.keys(mapper).forEach(key => {
-          params[key] = mapper[key](params[key])
-        })
+        this._mapParams(name, params)
         return {name, params}
       }
     }
@@ -64,11 +69,20 @@ module.exports = class Pages {
         if (action.type == CHANGE_PAGE) {
           const { name, params } = action.payload
           const page = this.pages[name]
-          const matchParams = PathTemplate.match(page.template, getCurrentPath())
-          if (typeof matchParams === 'undefined') {
-            // The current path does not match the next page
-            const path = page.path(params)
-            push(path)
+          const path = page.path(params)
+          const currentPath = getCurrentPath()
+          if (path !== currentPath) {
+            const matchParams = PathTemplate.match(page.template, currentPath)
+            if (typeof matchParams !== 'undefined') {
+              this._mapParams(name, matchParams)
+              if (!equal(params, matchParams)) {
+                // The current path does not match the next page
+                push(path)
+              }
+            } else {
+              // The current path does not match the next page
+              push(path)
+            }
           }
         }
         nextDispatch(action)
