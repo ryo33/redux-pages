@@ -24,13 +24,15 @@ describe('example', function() {
       page: pageReducer
     })
 
+    const pageSelector = state => state.page
+
     const history = createHistory()
     const getCurrentPath = () => history.location.pathname
     const pushPath = (path) => history.push(path)
 
     const store = createStore(
       reducer,
-      pages.storeEnhancer(getCurrentPath, pushPath)
+      pages.storeEnhancer(pageSelector, getCurrentPath, pushPath)
     )
     pages.handleNavigation(store, history.location.pathname)
     history.listen((location, action) => {

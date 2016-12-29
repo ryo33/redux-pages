@@ -46,6 +46,9 @@ const reducer = combineReducers({
   page: pageReducer
 })
 
+// Define the selector for the page state
+const pageSelector = state => state.page
+
 // Define getCurrentPath and pushPath
 const history = createHistory()
 const getCurrentPath = () => history.location.pathname
@@ -54,7 +57,7 @@ const pushPath = (path) => history.push(path)
 // Create the store
 const store = createStore(
   reducer,
-  pages.storeEnhancer(getCurrentPath, pushPath)
+  pages.storeEnhancer(pageSelector, getCurrentPath, pushPath)
 )
 
 // Apply the current path
@@ -116,6 +119,11 @@ Adds a page.
 
 ### `pages.addChildPage(page, template, name, [mapperObject]) => childPage`
 Adds a child page for the given `page`.
+
+### `pages.storeEnhancer(pageSelector, getCurrentPath, pushPath) => storeEnhancer`
+- `pageSelector` A selector for the page state
+- `getCurrentPath` A function to get the current path
+- `pushPath` A function to push the path
 
 ### `createPagesReducer([name], [params]) => reducer`
 Create a reducer.

@@ -61,31 +61,36 @@ module.exports = class Pages {
     store.dispatch(changePage(name, params))
   }
 
-  storeEnhancer(getCurrentPath, push) {
+  storeEnhancer(pageSelector, getCurrentPath, push) {
     return next => (...args) => {
       const store = next(...args)
       const nextDispatch = store.dispatch
       const dispatch = (action) => {
         if (action.type == CHANGE_PAGE) {
           const { name, params } = action.payload
-          const page = this.pages[name]
-          const path = page.path(params)
-          const currentPath = getCurrentPath()
-          if (path !== currentPath) {
-            const matchParams = PathTemplate.match(page.template, currentPath)
-            if (typeof matchParams !== 'undefined') {
-              this._mapParams(name, matchParams)
-              if (!equal(params, matchParams)) {
+          const currentPage = pageSelector(store.getState())
+          if (currentPage.name !== name || !equal(currentPage.params, params)) {
+            const page = this.pages[name]
+            const path = page.path(params)
+            const currentPath = getCurrentPath()
+            if (path !== currentPath) {
+              const matchParams = PathTemplate.match(page.template, currentPath)
+              if (typeof matchParams !== 'undefined') {
+                this._mapParams(name, matchParams)
+                if (!equal(params, matchParams)) {
+                  // The current path does not match the next page
+                  push(path)
+                }
+              } else {
                 // The current path does not match the next page
                 push(path)
               }
-            } else {
-              // The current path does not match the next page
-              push(path)
             }
+            nextDispatch(action)
           }
+        } else {
+          nextDispatch(action)
         }
-        nextDispatch(action)
       }
       return Object.assign(store, {dispatch})
     }
