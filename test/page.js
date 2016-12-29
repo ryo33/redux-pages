@@ -10,7 +10,7 @@ describe('Page', function() {
   const staticTemplate = PathTemplate.parse('/static/page')
   const staticPage = new Page('page2', staticTemplate)
 
-  it('should have \'page\' and \'template\' key', function() {
+  it('should have \'name\' and \'template\' key', function() {
     expect(page.name).to.equal('page1')
     expect(page.template).to.equal(template)
   })

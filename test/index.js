@@ -11,7 +11,7 @@ describe('example', function() {
     const pages = createPages()
     const indexPage = pages.addPage('/', 'index')
     const postsPage = pages.addPage('/posts', 'posts')
-    const postPage = pages.addChildPage(postsPage, '/:id', 'post')
+    const postPage = pages.addPage('/posts/:id', 'post')
     const usersPage = pages.addPage('/users', 'users')
     const userPage = pages.addPage('/users/:id', 'user')
     const userPostPage = pages.addChildPage(
@@ -32,6 +32,7 @@ describe('example', function() {
       reducer,
       pages.storeEnhancer(getCurrentPath, pushPath)
     )
+    pages.handleNavigation(store, history.location.pathname)
     history.listen((location, action) => {
       pages.handleNavigation(store, location.pathname)
     })
@@ -43,13 +44,10 @@ describe('example', function() {
 
     expectToBe('/', 'index', {})
 
-    store.dispatch(postPage.action({id: "3"}))
-    expectToBe('/posts/3', 'post', {id: "3"})
-
     store.dispatch(userPostPage.action({id: "5", number: 2}))
     expectToBe('/users/5/posts/2', 'userPost', {id: "5", number: 2})
 
-    history.push('/users/7')
+    history.push(userPage.path({id: "7"}))
     expectToBe('/users/7', 'user', {id: "7"})
 
     history.push('/users/7/posts')
