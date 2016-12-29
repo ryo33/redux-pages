@@ -1,9 +1,12 @@
 # Redux Pages
+A middleware-friendly routing engine that encapsulates raw URL paths.
 
 ## Features
 - Middleware-friendly
 - Raw URL paths is only used at definition
 - Rich template syntax
+
+It uses [@ryo33/path-template](https://github.com/ryo33/path-template).
 
 ## Workflow
 - `[P]` Change the current path
@@ -119,6 +122,12 @@ Adds a page.
 
 ### `pages.addChildPage(page, template, name, [mapperObject]) => childPage`
 Adds a child page for the given `page`.
+
+### `pages.handleNavigation(store, pathname)`
+Handles a navigation event.
+
+- `store` A store
+- `pathname` A pathname
 
 ### `pages.storeEnhancer(pageSelector, getCurrentPath, pushPath) => storeEnhancer`
 - `pageSelector` A selector for the page state

@@ -1,23 +1,31 @@
 {
   "name": "redux-pages",
   "version": "0.0.0",
-  "description": "",
+  "description": "A middleware-friendly routing engine that encapsulates raw URL paths",
   "main": "src/index.js",
-  "scripts": {
-    "test": "mocha"
-  },
-  "author": "Ryo33 (Ryo Hashiguchi)",
-  "license": "MIT",
+  "files": [
+    "src",
+    "test"
+  ],
+  "keywords": [
+    "redux",
+    "router"
+  ],
   "devDependencies": {
     "chai": "^3.5.0",
     "history": "^4.5.0",
     "mocha": "^3.2.0",
-    "redux": "^3.6.0"
+    "redux": "^3.6.0",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0"
   },
   "dependencies": {
     "@ryo33/path-template": "^1.0.1",
-    "deep-equal": "^1.0.1",
-    "sinon": "^1.17.6",
-    "sinon-chai": "^2.8.0"
-  }
+    "deep-equal": "^1.0.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Ryo33 (Ryo Hashiguchi)",
+  "license": "MIT"
 }
