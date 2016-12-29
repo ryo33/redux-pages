@@ -4,39 +4,47 @@ const { CHANGE_PAGE, changePage } = require('./action.js')
 
 module.exports = class Pages {
   constructor() {
-    this.pages = []
-    this._pagesMap = {}
+    this.pages = {}
+    this.pagesList = []
+    this.mappers = {}
   }
 
-  addPage(path, name) {
+  addPage(path, name, mapper = {}) {
     const template = PathTemplate.parse(path)
     if (typeof name === 'undefined') {
       // name is omitted
       name = PathTemplate.inspect(template)
     }
     const page = new Page(name, template)
-    this.pages.push(page)
-    this._pagesMap[name] = page
+    this.pagesList.push(page)
+    this.pages[name] = page
+    this.mappers[name] = mapper
     return page
   }
 
-  addChildPage(parent, path, name) {
+  addChildPage(parent, path, name, mapper = {}) {
     const template = PathTemplate.add(parent.template, path)
     if (typeof name === 'undefined') {
       // name is omitted
       name = PathTemplate.inspect(template)
     }
     const page = new Page(name, template)
-    this.pages.push(page)
-    this._pagesMap[name] = page
+    this.pagesList.push(page)
+    this.pages[name] = page
+    this.mappers[name] = mapper
     return page
   }
 
   match(path) {
-    for (let i = 0; i < this.pages.length; i ++) {
-      const params = PathTemplate.match(this.pages[i].template, path)
+    for (let i = 0; i < this.pagesList.length; i ++) {
+      const page = this.pagesList[i]
+      const params = PathTemplate.match(page.template, path)
       if (typeof params !== 'undefined') {
-        const name = this.pages[i].name
+        const name = page.name
+        const mapper = this.mappers[name]
+        Object.keys(mapper).forEach(key => {
+          params[key] = mapper[key](params[key])
+        })
         return {name, params}
       }
     }
@@ -55,7 +63,7 @@ module.exports = class Pages {
       const dispatch = (action) => {
         if (action.type == CHANGE_PAGE) {
           const { name, params } = action.payload
-          const page = this._pagesMap[name]
+          const page = this.pages[name]
           const matchParams = PathTemplate.match(page.template, getCurrentPath())
           if (typeof matchParams === 'undefined') {
             // The current path does not match the next page

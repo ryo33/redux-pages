@@ -8,7 +8,7 @@ const Pages = require('../src/pages.js')
 const { changePage } = require('../src/action.js')
 
 describe('Pages', function() {
-  describe('addPage(name, path)', function() {
+  describe('addPage(path, name, mapper)', function() {
     it('should return a page correctly', function() {
       const pages = new Pages()
       const postPage = pages.addPage('/posts/:id', 'post')
@@ -26,7 +26,7 @@ describe('Pages', function() {
     })
   })
 
-  describe('addChildPage(page, name, template)', function() {
+  describe('addChildPage(page, path, name, mapper)', function() {
     it('should return a page correctly', function() {
       const pages = new Pages()
       const userPage = pages.addPage('/users/:id')
@@ -49,6 +49,7 @@ describe('Pages', function() {
   })
 
   describe('match(path)', function() {
+    const toInt = str => parseInt(str, 10)
     const pages = new Pages()
     const postsPage = pages.addPage('/posts', 'posts')
     const postPage = pages.addChildPage(postsPage, '/:id', 'post')
@@ -56,14 +57,21 @@ describe('Pages', function() {
     const userPage1 = pages.addPage('/users/:id', 'user')
     const userPage2 = pages.addPage('/users/:id', 'unreachable1')
     const userPage3 = pages.addPage('/users/:id', 'unreachable2')
-    const userPostPage = pages.addChildPage(userPage2, '/posts/:number')
+    const logPage = pages.addPage('/logs/:number', 'log', {number: toInt})
+    const userPostPage = pages.addChildPage(
+      userPage2, '/posts/:number', 'userPost', {number: toInt})
 
     it('should return a page and params correctly', function() {
       expect(pages.match('/posts')).to.eql({name: 'posts', params: {}})
       expect(pages.match('/posts/11')).to.eql({name: 'post', params: {id: '11'}})
       expect(pages.match('/users')).to.eql({name: 'users', params: {}})
+    })
+
+    it('should use the given mapper object', function() {
+      expect(pages.match('/logs/3'))
+        .to.eql({name: 'log', params: {number: 3}})
       expect(pages.match('/users/3/posts/5'))
-        .to.eql({name: '/users/:id/posts/:number', params: {id: '3', number: '5'}})
+        .to.eql({name: 'userPost', params: {id: '3', number: 5}})
     })
 
     it('should prioritize matches first', function() {

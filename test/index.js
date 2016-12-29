@@ -14,7 +14,9 @@ describe('example', function() {
     const postPage = pages.addChildPage(postsPage, '/:id', 'post')
     const usersPage = pages.addPage('/users', 'users')
     const userPage = pages.addPage('/users/:id', 'user')
-    const userPostPage = pages.addChildPage(userPage, '/posts/:number', 'userPost')
+    const userPostPage = pages.addChildPage(
+      userPage, '/posts/:number', 'userPost',
+      {number: str => parseInt(str, 10)})
     const errorPage = pages.addPage('/*', 'error')
 
     const pageReducer = createPagesReducer(indexPage.name, {})
@@ -44,8 +46,8 @@ describe('example', function() {
     store.dispatch(postPage.action({id: "3"}))
     expectToBe('/posts/3', 'post', {id: "3"})
 
-    store.dispatch(userPostPage.action({id: "5", number: "2"}))
-    expectToBe('/users/5/posts/2', 'userPost', {id: "5", number: "2"})
+    store.dispatch(userPostPage.action({id: "5", number: 2}))
+    expectToBe('/users/5/posts/2', 'userPost', {id: "5", number: 2})
 
     history.push('/users/7')
     expectToBe('/users/7', 'user', {id: "7"})
