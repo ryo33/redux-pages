@@ -78,7 +78,6 @@ store.dispatch(userPostPage.action({id: '5', number: 2}))
 
 // Change the path directly
 history.push(userPage.path({id: '7'}))
-expectToBe('/users/7', 'user', {id: '7'})
 // history.location.pathname => '/users/7'
 // store.getState().page => {name: 'user', params: {id: '7'}}
 
