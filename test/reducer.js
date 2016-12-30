@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const PathTemplate = require('@ryo33/path-template')
-const Page = require('../src/page.js')
+const createPage = require('../src/page.js')
 const { changePage } = require('../src/action.js')
 const createReducer = require('../src/reducer.js')
 
@@ -8,9 +8,9 @@ describe('createReducer(page, params)', function() {
   const template1 = PathTemplate.parse('/:a/:b')
   const template2 = PathTemplate.parse('/:a')
   const template3 = PathTemplate.parse('/')
-  const page1 = new Page('page1', template1)
-  const page2 = new Page('page2', template2)
-  const page3 = new Page('page3', template3)
+  const page1 = createPage('page1', template1)
+  const page2 = createPage('page2', template2)
+  const page3 = createPage('page3', template3)
   const reducer = createReducer(page1.name, {a: 3, b: 5})
 
   it('should use the given page as the default state', function() {

@@ -1,17 +1,13 @@
 const PathTemplate = require('@ryo33/path-template')
 const { changePage } = require('../src/action.js')
 
-module.exports = class Page {
-  constructor(name, template) {
-    this.name = name
-    this.template = template
-  }
-
+module.exports = (name, template) => ({
+  name,
+  template,
   path(params = {}) {
-    return PathTemplate.format(this.template, params)
-  }
-
+    return PathTemplate.format(template, params)
+  },
   action(params = {}) {
-    return changePage(this.name, params)
+    return changePage(name, params)
   }
-}
+})

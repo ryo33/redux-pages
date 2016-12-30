@@ -1,14 +1,14 @@
 const { expect } = require('chai')
 const PathTemplate = require('@ryo33/path-template')
-const Page = require('../src/page.js')
+const createPage = require('../src/page.js')
 const { changePage } = require('../src/action.js')
 
 describe('Page', function() {
   const template = PathTemplate.parse('/:a/:b')
-  const page = new Page('page1', template)
+  const page = createPage('page1', template)
 
   const staticTemplate = PathTemplate.parse('/static/page')
-  const staticPage = new Page('page2', staticTemplate)
+  const staticPage = createPage('page2', staticTemplate)
 
   it('should have \'name\' and \'template\' key', function() {
     expect(page.name).to.equal('page1')
@@ -37,5 +37,12 @@ describe('Page', function() {
       const action = staticPage.action({})
       expect(action).to.eql(changePage('page2', {}))
     })
+  })
+
+  it('should work without this', function() {
+    const path = page.path.call(null, {a: 'posts', b: 3})
+    expect(path).to.equal('/posts/3')
+    const action = page.action.call(null, {a: 'posts', b: 3})
+    expect(action).to.eql(changePage('page1', {a: 'posts', b: 3}))
   })
 })

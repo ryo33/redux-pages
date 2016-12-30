@@ -1,6 +1,6 @@
 const PathTemplate = require('@ryo33/path-template')
 const equal = require('deep-equal')
-const Page = require('./page.js')
+const createPage = require('./page.js')
 const { CHANGE_PAGE, changePage } = require('./action.js')
 
 module.exports = class Pages {
@@ -16,7 +16,7 @@ module.exports = class Pages {
       // name is omitted
       name = PathTemplate.inspect(template)
     }
-    const page = new Page(name, template)
+    const page = createPage(name, template)
     this.pagesList.push(page)
     this.pages[name] = page
     this.mappers[name] = mapper
@@ -29,7 +29,7 @@ module.exports = class Pages {
       // name is omitted
       name = PathTemplate.inspect(template)
     }
-    const page = new Page(name, template)
+    const page = createPage(name, template)
     this.pagesList.push(page)
     this.pages[name] = page
     this.mappers[name] = mapper
