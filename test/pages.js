@@ -89,7 +89,8 @@ describe('Pages', function() {
   describe('handleNavigation(store, path)', function() {
     const pages = new Pages()
     const postsPage = pages.addPage('/posts', 'posts')
-    const postPage = pages.addChildPage(postsPage, '/:id', 'post')
+    const postPage = pages.addChildPage(
+      postsPage, '/:number', 'post', {number: str => parseInt(str, 10)})
     const dispatchSpy = sinon.spy()
     const store = {
       dispatch: dispatchSpy,
@@ -103,7 +104,7 @@ describe('Pages', function() {
     it('should dispatch a correct action', function() {
       pages.handleNavigation(store, '/posts/3')
       const args = dispatchSpy.args[0] // args in the first call
-      expect(args).to.eql([changePage('post', {id: '3'})])
+      expect(args).to.eql([changePage('post', {number: 3})])
       expect(dispatchSpy.calledOnce).to.true
     })
 
@@ -201,6 +202,17 @@ describe('Pages', function() {
       store.dispatch(action)
       expect(dispatchSpy).to.not.have.been.called
       expect(pushSpy).to.not.have.been.called
+    })
+
+    it('should not call push before the state is changed', function() {
+      getCurrentPathStub.returns('/unknown/path')
+      getStateStub.returns({page: {name: 'error', params: {}}})
+
+      const action = changePage('post', {number: 3})
+      store.dispatch(action)
+      expect(dispatchSpy.calledOnce).to.true
+      expect(pushSpy.calledOnce).to.true
+      expect(pushSpy).to.have.been.calledAfter(dispatchSpy)
     })
   })
 })

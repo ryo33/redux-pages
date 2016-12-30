@@ -68,8 +68,14 @@ module.exports = class Pages {
       const dispatch = (action) => {
         if (action.type == CHANGE_PAGE) {
           const { name, params } = action.payload
-          const currentPage = pageSelector(store.getState())
 
+          // Dispatch
+          const currentPage = pageSelector(store.getState())
+          if (currentPage.name !== name || !equal(currentPage.params, params)) {
+            nextDispatch(action)
+          }
+
+          // Push
           const page = this.pages[name]
           const path = page.path(params)
           const currentPath = getCurrentPath()
@@ -85,10 +91,6 @@ module.exports = class Pages {
               // The current path does not match the next page
               push(path)
             }
-          }
-
-          if (currentPage.name !== name || !equal(currentPage.params, params)) {
-            nextDispatch(action)
           }
         } else {
           nextDispatch(action)
