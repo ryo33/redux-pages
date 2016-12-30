@@ -1,8 +1,8 @@
 # Redux Pages
-A middleware-friendly routing engine that encapsulates raw URL paths.
+A middleware-friendly routing helper that encapsulates raw URL paths.
 
 ## Features
-- Middleware-friendly
+- Middleware friendly
 - Raw URL paths is only used at definition
 - Rich template syntax
 

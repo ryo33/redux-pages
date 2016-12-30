@@ -3,7 +3,7 @@ const { createStore, combineReducers, applyMiddleware } = require('redux')
 const createHistory = require('history').createMemoryHistory
 const {
   createPages, createPagesReducer
-} = require('../src/index.js')
+} = require('../lib/index.js')
 
 describe('example', function() {
   it('should work correctly', function() {
