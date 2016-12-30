@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { createStore, combineReducers } = require('redux')
+const { createStore, combineReducers, applyMiddleware } = require('redux')
 const createHistory = require('history').createMemoryHistory
 const {
   createPages, createPagesReducer
@@ -30,10 +30,13 @@ describe('example', function() {
     const getCurrentPath = () => history.location.pathname
     const pushPath = (path) => history.push(path)
 
+    const middleware = pages.middleware(pageSelector, getCurrentPath, pushPath)
+
     const store = createStore(
       reducer,
-      pages.storeEnhancer(pageSelector, getCurrentPath, pushPath)
+      applyMiddleware(middleware)
     )
+
     pages.handleNavigation(store, history.location.pathname)
     history.listen((location, action) => {
       pages.handleNavigation(store, location.pathname)

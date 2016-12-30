@@ -124,12 +124,12 @@ describe('Pages', function() {
     const pageSelector = state => state.page
     const getCurrentPathStub = sinon.stub()
     const pushSpy = sinon.spy()
+    const middleware = pages
+      .middleware(pageSelector, getCurrentPathStub, pushSpy)
+
     const dispatchSpy = sinon.spy()
     const getStateStub = sinon.stub()
-    const storeCreator = () => ({dispatch: dispatchSpy, getState: getStateStub})
-    const reducer = (state = {}, action) => state
-    const store = pages
-      .storeEnhancer(pageSelector, getCurrentPathStub, pushSpy)(storeCreator)(reducer)
+    const store = ({dispatch: dispatchSpy, getState: getStateStub})
 
     beforeEach(function() {
       getStateStub.returns({page: {name: 'error', params: {}}})
@@ -145,7 +145,7 @@ describe('Pages', function() {
       getStateStub.returns({page: {name: 'error', params: {}}})
 
       const action = changePage('post', {number: 3})
-      store.dispatch(action)
+      middleware(store)(store.dispatch)(action)
       expect(dispatchSpy).to.have.been.calledWithExactly(action)
       expect(dispatchSpy.calledOnce).to.true
       expect(pushSpy).to.have.been.calledWithExactly('/posts/3')
@@ -157,7 +157,7 @@ describe('Pages', function() {
       getStateStub.returns({page: {name: 'post', params: {number: 3}}})
 
       const action = changePage('post', {number: 3})
-      store.dispatch(action)
+      middleware(store)(store.dispatch)(action)
       expect(dispatchSpy).to.not.have.been.called
       expect(pushSpy).to.not.have.been.called
     })
@@ -167,7 +167,7 @@ describe('Pages', function() {
       getStateStub.returns({page: {name: 'post', params: {number: 3}}})
 
       const action = changePage('post', {number: 3})
-      store.dispatch(action)
+      middleware(store)(store.dispatch)(action)
       expect(dispatchSpy).to.not.have.been.called
       expect(pushSpy).to.have.been.calledWithExactly('/posts/3')
       expect(pushSpy.calledOnce).to.true
@@ -178,7 +178,7 @@ describe('Pages', function() {
       getStateStub.returns({page: {name: 'error', params: {}}})
 
       const action = changePage('post', {number: 3})
-      store.dispatch(action)
+      middleware(store)(store.dispatch)(action)
       expect(dispatchSpy).to.have.been.calledWithExactly(action)
       expect(dispatchSpy.calledOnce).to.true
       expect(pushSpy).to.not.have.been.called
@@ -189,7 +189,7 @@ describe('Pages', function() {
 
       getCurrentPathStub.returns('/posts/3/something')
       getStateStub.returns({page: {name: 'post', params: {number: 3}}})
-      store.dispatch(action)
+      middleware(store)(store.dispatch)(action)
       expect(dispatchSpy).to.have.been.calledWithExactly(action)
       expect(dispatchSpy.calledOnce).to.true
       expect(pushSpy).to.not.have.been.called
@@ -199,7 +199,7 @@ describe('Pages', function() {
 
       getCurrentPathStub.returns('/posts/3/something')
       getStateStub.returns({page: {name: 'error', params: {number: 3}}})
-      store.dispatch(action)
+      middleware(store)(store.dispatch)(action)
       expect(dispatchSpy).to.not.have.been.called
       expect(pushSpy).to.not.have.been.called
     })
@@ -209,10 +209,91 @@ describe('Pages', function() {
       getStateStub.returns({page: {name: 'error', params: {}}})
 
       const action = changePage('post', {number: 3})
-      store.dispatch(action)
+      middleware(store)(store.dispatch)(action)
       expect(dispatchSpy.calledOnce).to.true
       expect(pushSpy.calledOnce).to.true
-      expect(pushSpy).to.have.been.calledAfter(dispatchSpy)
+      expect(pushSpy).to.have.been.calledBefore(dispatchSpy)
+    })
+  })
+
+  describe('pages', function() {
+
+    const pageSelector = state => state.page
+    const getCurrentPathStub = sinon.stub()
+    const push = path => {}
+
+    let pages, postPage, middleware
+
+    const dispatchSpy = sinon.spy()
+    const getState = () => ({page: {name: 'error', params: {}}})
+    const dummyStore = ({dispatch: action => {}, getState})
+    const store = ({dispatch: dispatchSpy, getState: getState})
+
+    beforeEach(function() {
+      pages = new Pages()
+      postPage = pages.addPage('/posts/:number', 'post',
+        {number: str => parseInt(str, 10)})
+      middleware = pages
+        .middleware(pageSelector, getCurrentPathStub, push)
+    })
+
+    afterEach(function() {
+      dispatchSpy.reset()
+    })
+
+    it('should not ignore paths when no paths is pushed', function() {
+      getCurrentPathStub.returns('/posts/3')
+      const action = changePage('post', {number: 3})
+      middleware(dummyStore)(dummyStore.dispatch)(action)
+
+      pages.handleNavigation(store, '/posts/3')
+      const args = dispatchSpy.args[0] // args in the first call
+      expect(args).to.eql([changePage('post', {number: 3})])
+      expect(dispatchSpy.calledOnce).to.true
+    })
+
+    it('should not ignore paths different from the previously pushed', function() {
+      getCurrentPathStub.returns('/unknown/path')
+      const action = changePage('post', {number: 3})
+      middleware(dummyStore)(dummyStore.dispatch)(action)
+
+      pages.handleNavigation(store, '/posts/4')
+      const args = dispatchSpy.args[0] // args in the first call
+      expect(args).to.eql([changePage('post', {number: 4})])
+      expect(dispatchSpy.calledOnce).to.true
+    })
+
+    it('should ignore the same path as the previously pushed once', function() {
+      getCurrentPathStub.returns('/unknown/path')
+      const action = changePage('post', {number: 3})
+      middleware(dummyStore)(dummyStore.dispatch)(action)
+
+      pages.handleNavigation(store, '/posts/3')
+      expect(dispatchSpy).to.not.have.been.called
+      pages.handleNavigation(store, '/posts/3')
+      const args = dispatchSpy.args[0] // args in the first call
+      expect(args).to.eql([changePage('post', {number: 3})])
+      expect(dispatchSpy.calledOnce).to.true
+    })
+
+    it('should treat _lastPushedPath as a queue', function() {
+      getCurrentPathStub.returns('/unknown/path')
+      const action1 = changePage('post', {number: 3})
+      middleware(dummyStore)(dummyStore.dispatch)(action1)
+      const action2 = changePage('post', {number: 4})
+      middleware(dummyStore)(dummyStore.dispatch)(action2)
+
+      pages.handleNavigation(store, '/posts/3')
+      expect(dispatchSpy).to.not.have.been.called
+      pages.handleNavigation(store, '/posts/4')
+      expect(dispatchSpy).to.not.have.been.called
+      pages.handleNavigation(store, '/posts/3')
+      pages.handleNavigation(store, '/posts/4')
+      const args1 = dispatchSpy.args[0] // args in the first call
+      expect(args1).to.eql([changePage('post', {number: 3})])
+      const args2 = dispatchSpy.args[1] // args in the first call
+      expect(args2).to.eql([changePage('post', {number: 4})])
+      expect(dispatchSpy.calledTwice).to.true
     })
   })
 })

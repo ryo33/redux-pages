@@ -8,6 +8,7 @@ module.exports = class Pages {
     this.pages = {}
     this.pagesList = []
     this.mappers = {}
+    this._lastPushedPath = []
   }
 
   addPage(path, name, mapper = {}) {
@@ -57,46 +58,48 @@ module.exports = class Pages {
   }
 
   handleNavigation(store, path) {
-    const {name, params} = this.match(path)
-    store.dispatch(changePage(name, params))
+    if (this._lastPushedPath[0] === path) {
+      this._lastPushedPath.shift()
+    } else {
+      const {name, params} = this.match(path)
+      store.dispatch(changePage(name, params))
+    }
   }
 
-  storeEnhancer(pageSelector, getCurrentPath, push) {
-    return next => (...args) => {
-      const store = next(...args)
-      const nextDispatch = store.dispatch
-      const dispatch = (action) => {
-        if (action.type == CHANGE_PAGE) {
-          const { name, params } = action.payload
+  middleware(pageSelector, getCurrentPath, push) {
+    return store => next => action => {
+      if (action.type == CHANGE_PAGE) {
+        const { name, params } = action.payload
 
-          // Dispatch
-          const currentPage = pageSelector(store.getState())
-          if (currentPage.name !== name || !equal(currentPage.params, params)) {
-            nextDispatch(action)
-          }
-
-          // Push
-          const page = this.pages[name]
-          const path = page.path(params)
-          const currentPath = getCurrentPath()
-          if (path !== currentPath) {
-            const matchParams = PathTemplate.match(page.template, currentPath)
-            if (typeof matchParams !== 'undefined') {
-              this._mapParams(name, matchParams)
-              if (!equal(params, matchParams)) {
-                // The current path does not match the next page
-                push(path)
-              }
-            } else {
-              // The current path does not match the next page
-              push(path)
+        // Push
+        const page = this.pages[name]
+        const path = page.path(params)
+        const currentPath = getCurrentPath()
+        if (path !== currentPath) {
+          const matchParams = PathTemplate.match(page.template, currentPath)
+          let doesNotMatch = false
+          if (typeof matchParams !== 'undefined') {
+            this._mapParams(name, matchParams)
+            if (!equal(params, matchParams)) {
+              doesNotMatch = true
             }
+          } else {
+            doesNotMatch = true
           }
-        } else {
-          nextDispatch(action)
+          if (doesNotMatch) {
+            this._lastPushedPath.push(path)
+            push(path)
+          }
         }
+
+        // Dispatch
+        const currentPage = pageSelector(store.getState())
+        if (currentPage.name !== name || !equal(currentPage.params, params)) {
+          next(action)
+        }
+      } else {
+        next(action)
       }
-      return Object.assign(store, {dispatch})
     }
   }
 }

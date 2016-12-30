@@ -33,9 +33,10 @@ $ npm install -S redux-pages
 
 ## Example
 ```javascript
-import {createStore, combineReducers} from 'redux'
+import { createStore,
+  combineReducers, applyMiddleware } from 'redux'
 import createHistory from 'history/createBrowserHistory'
-import {createPages, createPagesReducer} from 'redux-pages'
+import { createPages, createPagesReducer } from 'redux-pages'
 
 // Define pages
 const pages = createPages()
@@ -49,30 +50,23 @@ const userPostPage = pages.addChildPage(
   {number: str => parseInt(str, 10)})
 const errorPage = pages.addPage('/*', 'error')
 
-// Create a reducer
 const pageReducer = createPagesReducer(indexPage.name, {})
 const reducer = combineReducers({
   page: pageReducer
 })
 
-// Define the selector for the page state
 const pageSelector = state => state.page
 
-// Define getCurrentPath and pushPath
 const history = createHistory()
 const getCurrentPath = () => history.location.pathname
 const pushPath = (path) => history.push(path)
+const pagesMiddleware = pages.middleware(pageSelector, getCurrentPath, pushPath)
 
-// Create the store
 const store = createStore(
   reducer,
-  pages.storeEnhancer(pageSelector, getCurrentPath, pushPath)
+  applyMiddleware(pagesMiddleware)
 )
-
-// Apply the current path
 pages.handleNavigation(store, history.location.pathname)
-
-// Listen for changes
 history.listen((location, action) => {
   pages.handleNavigation(store, location.pathname)
 })
@@ -134,7 +128,7 @@ Handles a navigation event.
 - `store` A store
 - `pathname` A pathname
 
-### `pages.storeEnhancer(pageSelector, getCurrentPath, pushPath) => storeEnhancer`
+### `pages.middleware(pageSelector, getCurrentPath, pushPath) => middleware`
 - `pageSelector` A selector for the page state
 - `getCurrentPath` A function to get the current path
 - `pushPath` A function to push the path
