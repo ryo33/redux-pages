@@ -143,6 +143,8 @@ The state shape is `{name, params}`.
 ### `changePage(name, params) => action`
 Creates an action with given name and params.
 
+- `action` `{ type: CHANGE_PAGE, payload: {name: 'PAGE_NAME', params: PAGE_PARAMS}}`
+
 ### `CHANGE_PAGE`
 The type of actions to change the page.
 
