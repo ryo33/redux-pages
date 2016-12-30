@@ -69,23 +69,25 @@ module.exports = class Pages {
         if (action.type == CHANGE_PAGE) {
           const { name, params } = action.payload
           const currentPage = pageSelector(store.getState())
-          if (currentPage.name !== name || !equal(currentPage.params, params)) {
-            const page = this.pages[name]
-            const path = page.path(params)
-            const currentPath = getCurrentPath()
-            if (path !== currentPath) {
-              const matchParams = PathTemplate.match(page.template, currentPath)
-              if (typeof matchParams !== 'undefined') {
-                this._mapParams(name, matchParams)
-                if (!equal(params, matchParams)) {
-                  // The current path does not match the next page
-                  push(path)
-                }
-              } else {
+
+          const page = this.pages[name]
+          const path = page.path(params)
+          const currentPath = getCurrentPath()
+          if (path !== currentPath) {
+            const matchParams = PathTemplate.match(page.template, currentPath)
+            if (typeof matchParams !== 'undefined') {
+              this._mapParams(name, matchParams)
+              if (!equal(params, matchParams)) {
                 // The current path does not match the next page
                 push(path)
               }
+            } else {
+              // The current path does not match the next page
+              push(path)
             }
+          }
+
+          if (currentPage.name !== name || !equal(currentPage.params, params)) {
             nextDispatch(action)
           }
         } else {

@@ -120,13 +120,15 @@ describe('Pages', function() {
       {number: str => parseInt(str, 10)})
     const errorPage = pages.addChildPage(postPage, '/*', 'error')
 
+    const pageSelector = state => state.page
+    const getCurrentPathStub = sinon.stub()
+    const pushSpy = sinon.spy()
     const dispatchSpy = sinon.spy()
     const getStateStub = sinon.stub()
     const storeCreator = () => ({dispatch: dispatchSpy, getState: getStateStub})
-    const pageSelector = state => state.page
     const reducer = (state = {}, action) => state
-
-    const pushSpy = sinon.spy()
+    const store = pages
+      .storeEnhancer(pageSelector, getCurrentPathStub, pushSpy)(storeCreator)(reducer)
 
     beforeEach(function() {
       getStateStub.returns({page: {name: 'error', params: {}}})
@@ -137,62 +139,67 @@ describe('Pages', function() {
       pushSpy.reset()
     })
 
-    it('should dispatch when state is not changed', function() {
-      const getCurrentPath = () => '/unknown/path'
-      const store = pages
-        .storeEnhancer(pageSelector, getCurrentPath, pushSpy)(storeCreator)(reducer)
+    it('should call dispatch and push when the page and the state is changed', function() {
+      getCurrentPathStub.returns('/unknown/path')
+      getStateStub.returns({page: {name: 'error', params: {}}})
+
       const action = changePage('post', {number: 3})
       store.dispatch(action)
       expect(dispatchSpy).to.have.been.calledWithExactly(action)
       expect(dispatchSpy.calledOnce).to.true
+      expect(pushSpy).to.have.been.calledWithExactly('/posts/3')
+      expect(pushSpy.calledOnce).to.true
     })
 
-    it('should not dispatch when state is not changed', function() {
+    it('should not call dispatch and push when the page and the state is not changed', function() {
+      getCurrentPathStub.returns('/posts/3')
       getStateStub.returns({page: {name: 'post', params: {number: 3}}})
-      const getCurrentPath = () => '/posts/3'
-      const store = pages
-        .storeEnhancer(pageSelector, getCurrentPath, pushSpy)(storeCreator)(reducer)
+
       const action = changePage('post', {number: 3})
       store.dispatch(action)
       expect(dispatchSpy).to.not.have.been.called
+      expect(pushSpy).to.not.have.been.called
     })
 
-    it('should push the correct path', function() {
-      const getCurrentPath = () => '/unknown/path'
-      const store = pages
-        .storeEnhancer(pageSelector, getCurrentPath, pushSpy)(storeCreator)(reducer)
-      const action = postPage.action({number: 3})
+    it('should not call dispatch when the state is not changed', function() {
+      getCurrentPathStub.returns('/unknown/path')
+      getStateStub.returns({page: {name: 'post', params: {number: 3}}})
+
+      const action = changePage('post', {number: 3})
       store.dispatch(action)
+      expect(dispatchSpy).to.not.have.been.called
       expect(pushSpy).to.have.been.calledWithExactly('/posts/3')
       expect(pushSpy.calledOnce).to.true
+    })
 
+    it('should not call push when the path is not changed', function() {
+      getCurrentPathStub.returns('/posts/3')
+      getStateStub.returns({page: {name: 'error', params: {}}})
+
+      const action = changePage('post', {number: 3})
+      store.dispatch(action)
       expect(dispatchSpy).to.have.been.calledWithExactly(action)
       expect(dispatchSpy.calledOnce).to.true
-    })
-
-    it('should not push the same path as the current one', function() {
-      const getCurrentPath = () => '/posts/3'
-      const store = pages
-        .storeEnhancer(pageSelector, getCurrentPath, pushSpy)(storeCreator)(reducer)
-      store.dispatch(postPage.action({number: 3}))
       expect(pushSpy).to.not.have.been.called
-      pushSpy.reset()
-
-      store.dispatch(postsPage.action())
-      expect(pushSpy).to.have.been.calledWithExactly('/posts')
-      expect(pushSpy.calledOnce).to.true
-      pushSpy.reset()
-
-      store.dispatch(postPage.action({number: 4}))
-      expect(pushSpy).to.have.been.calledWithExactly('/posts/4')
-      expect(pushSpy.calledOnce).to.true
     })
 
-    it('should not push a path which matches the next page', function() {
-      const getCurrentPath = () => '/posts/3/something'
-      const store = pages
-        .storeEnhancer(pageSelector, getCurrentPath, pushSpy)(storeCreator)(reducer)
-      store.dispatch(errorPage.action({number: 3}))
+    it('should not call push when matches the next path matches the current one', function() {
+      const action = errorPage.action({number: 3})
+
+      getCurrentPathStub.returns('/posts/3/something')
+      getStateStub.returns({page: {name: 'post', params: {number: 3}}})
+      store.dispatch(action)
+      expect(dispatchSpy).to.have.been.calledWithExactly(action)
+      expect(dispatchSpy.calledOnce).to.true
+      expect(pushSpy).to.not.have.been.called
+
+      dispatchSpy.reset()
+      pushSpy.reset()
+
+      getCurrentPathStub.returns('/posts/3/something')
+      getStateStub.returns({page: {name: 'error', params: {number: 3}}})
+      store.dispatch(action)
+      expect(dispatchSpy).to.not.have.been.called
       expect(pushSpy).to.not.have.been.called
     })
   })
