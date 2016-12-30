@@ -15,10 +15,16 @@ It uses [@ryo33/path-template](https://github.com/ryo33/path-template).
 - `[S]` Change the state
 
 ### Change the current path directly
-`[P]` -> `[A]` -> `[M]` -> `[P]` `[S]`
+```
+[P] ---> [A] ---> [M] ---> [S]
+```
+
 
 ### Dispatch an action to change the page
-`[A]` -> `[M]` -> `[P]` `[S]`
+```
+[A] -+-> [M] ---> [S]
+     +-> [P]
+```
 
 ## Installation
 ```bash
