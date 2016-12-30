@@ -1,4 +1,4 @@
-# Redux Pages
+# redux-pages
 A middleware-friendly routing helper that encapsulates raw URL paths.
 
 ## Features
@@ -32,6 +32,10 @@ $ npm install -S redux-pages
 ```
 
 ## Example
+- [Demo](http://ryo33.com/redux-pages/#/)
+- [src](https://github.com/ryo33/redux-pages/tree/master/example/src)
+
+## Usage
 ```javascript
 import { createStore,
   combineReducers, applyMiddleware } from 'redux'
