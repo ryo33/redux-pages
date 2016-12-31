@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const { createStore, combineReducers, applyMiddleware } = require('redux')
 const createHistory = require('history').createMemoryHistory
 const {
-  createPages, createPagesReducer
+  createPages, createPagesReducer, changePage, CHANGE_PAGE
 } = require('../lib/index.js')
 
 describe('example', function() {
@@ -57,5 +57,11 @@ describe('example', function() {
 
     history.push('/users/7/posts')
     expectToBe('/users/7/posts', 'error', {})
+
+    const action = userPostPage.action({id: "5", number: 2})
+    expect(action)
+      .to.eql(changePage('userPost', {id: '5', number: 2}))
+    expect(action.type)
+      .to.equal(CHANGE_PAGE)
   })
 })
