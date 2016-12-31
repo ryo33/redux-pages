@@ -1,35 +1,18 @@
 # redux-pages
 A middleware-friendly routing helper that encapsulates raw URL paths.
 
+***"Parse once, route anywhere"***  
+***"Keep the state clean"***  
+
 ## Features
-- Middleware friendly
+- Full control from middlewares
 - Raw URL paths is only used at definition
 - Rich template syntax
 
 redux-pages uses [@ryo33/path-template](https://github.com/ryo33/path-template).
 
-## Workflow
-```
-                                              +----------+
-                                              |          |
-                               +--------------+  Action  |<--------+
-                               |              |          |         |
-                               |              +----------+         |
-                               |                                   |
-                               v                                   |
-      +----------+      +--------------+      +---------+      +---+----+
-      |          |      |              |      |         |      |        |
-+---->|  Action  +----->|  Dispatcher  +----->|  Store  +----->|  View  |
-|     |          |      |              |      |         |      |        |
-|     +----------+      +------+-------+      +---------+      +--------+
-|                              |
-|                              |
-|     +-----------+            |
-|     |           |            |
-+-----+  History  |<-----------+
-      |           |
-      +-----------+
-```
+## Diagram
+![diagram.jpg](diagram.jpg)
 
 ## Installation
 ```bash
