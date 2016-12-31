@@ -12,6 +12,8 @@ A middleware-friendly routing helper that encapsulates raw URL paths.
 redux-pages uses [@ryo33/path-template](https://github.com/ryo33/path-template).
 
 ## Diagram
+Page transitions are done in the flow as shown below.
+
 ![diagram.jpg](diagram.jpg)
 
 ## Installation
