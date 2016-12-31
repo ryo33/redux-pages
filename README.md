@@ -9,21 +9,26 @@ A middleware-friendly routing helper that encapsulates raw URL paths.
 redux-pages uses [@ryo33/path-template](https://github.com/ryo33/path-template).
 
 ## Workflow
-- `[P]` Change the current path
-- `[A]` Dispatch an action
-- `[M]` Middlewares (redirecting, handling side effects, etc.)
-- `[S]` Change the state
-
-### When changing the current path directly
 ```
-[P] ---> [A] ---> [M] ---> [S]
-```
-
-
-### When dispatching an action to change the page
-```
-[A] -+-> [M] ---> [S]
-     +-> [P]
+                                              +----------+
+                                              |          |
+                               +--------------+  Action  |<--------+
+                               |              |          |         |
+                               |              +----------+         |
+                               |                                   |
+                               v                                   |
+      +----------+      +--------------+      +---------+      +---+----+
+      |          |      |              |      |         |      |        |
++---->|  Action  +----->|  Dispatcher  +----->|  Store  +----->|  View  |
+|     |          |      |              |      |         |      |        |
+|     +----------+      +------+-------+      +---------+      +--------+
+|                              |
+|                              |
+|     +-----------+            |
+|     |           |            |
++-----+  History  |<-----------+
+      |           |
+      +-----------+
 ```
 
 ## Installation
