@@ -91,15 +91,8 @@ module.exports = class Pages {
             push(path)
           }
         }
-
-        // Dispatch
-        const currentPage = pageSelector(store.getState())
-        if (currentPage.name !== name || !equal(currentPage.params, params)) {
-          next(action)
-        }
-      } else {
-        next(action)
       }
+      return next(action)
     }
   }
 }

@@ -114,7 +114,7 @@ describe('Pages', function() {
     })
   })
 
-  describe('storeEnhancer(pageSelector, getCurrentPath, push)', function() {
+  describe('middleware(pageSelector, getCurrentPath, push)', function() {
     const pages = new Pages()
     const postsPage = pages.addPage('/posts', 'posts')
     const postPage = pages.addChildPage(postsPage, '/:number', 'post',
@@ -152,25 +152,15 @@ describe('Pages', function() {
       expect(pushSpy.calledOnce).to.true
     })
 
-    it('should not call dispatch and push when the page and the state is not changed', function() {
+    it('should not call push when the page and the state is not changed', function() {
       getCurrentPathStub.returns('/posts/3')
       getStateStub.returns({page: {name: 'post', params: {number: 3}}})
 
       const action = changePage('post', {number: 3})
       middleware(store)(store.dispatch)(action)
-      expect(dispatchSpy).to.not.have.been.called
+      expect(dispatchSpy).to.have.been.calledWithExactly(action)
+      expect(dispatchSpy.calledOnce).to.true
       expect(pushSpy).to.not.have.been.called
-    })
-
-    it('should not call dispatch when the state is not changed', function() {
-      getCurrentPathStub.returns('/unknown/path')
-      getStateStub.returns({page: {name: 'post', params: {number: 3}}})
-
-      const action = changePage('post', {number: 3})
-      middleware(store)(store.dispatch)(action)
-      expect(dispatchSpy).to.not.have.been.called
-      expect(pushSpy).to.have.been.calledWithExactly('/posts/3')
-      expect(pushSpy.calledOnce).to.true
     })
 
     it('should not call push when the path is not changed', function() {
@@ -200,7 +190,8 @@ describe('Pages', function() {
       getCurrentPathStub.returns('/posts/3/something')
       getStateStub.returns({page: {name: 'error', params: {number: 3}}})
       middleware(store)(store.dispatch)(action)
-      expect(dispatchSpy).to.not.have.been.called
+      expect(dispatchSpy).to.have.been.calledWithExactly(action)
+      expect(dispatchSpy.calledOnce).to.true
       expect(pushSpy).to.not.have.been.called
     })
 
