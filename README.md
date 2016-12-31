@@ -6,21 +6,21 @@ A middleware-friendly routing helper that encapsulates raw URL paths.
 - Raw URL paths is only used at definition
 - Rich template syntax
 
-It uses [@ryo33/path-template](https://github.com/ryo33/path-template).
+redux-pages uses [@ryo33/path-template](https://github.com/ryo33/path-template).
 
 ## Workflow
 - `[P]` Change the current path
 - `[A]` Dispatch an action
-- `[M]` Filter and transform actions by middlewares
+- `[M]` Middlewares (redirecting, handling side effects, etc.)
 - `[S]` Change the state
 
-### Change the current path directly
+### When changing the current path directly
 ```
 [P] ---> [A] ---> [M] ---> [S]
 ```
 
 
-### Dispatch an action to change the page
+### When dispatching an action to change the page
 ```
 [A] -+-> [M] ---> [S]
      +-> [P]
@@ -129,10 +129,14 @@ Adds a child page for the given `page`.
 ### `pages.handleNavigation(store, pathname)`
 Handles a navigation event.
 
+It matches the given pathname in order of `addPage`/`addChildPage` is called.
+
 - `store` A store
 - `pathname` A pathname
 
 ### `pages.middleware(pageSelector, getCurrentPath, pushPath) => middleware`
+Changes the path when the middleware receives an changePage action.
+
 - `pageSelector` A selector for the page state
 - `getCurrentPath` A function to get the current path
 - `pushPath` A function to push the path
