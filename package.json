@@ -1,6 +1,6 @@
 {
   "name": "redux-pages",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "A middleware-friendly routing helper that encapsulates raw URL paths",
   "main": "lib/index.js",
   "files": [
