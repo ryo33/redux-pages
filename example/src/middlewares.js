@@ -19,17 +19,27 @@ const pageMiddleware = store => next => action => {
   }
 }
 
-const delayMiddleware = store => next => action => {
-  const isChangePage = action.type === CHANGE_PAGE;
-  if (isChangePage && action.payload.name === delayPage.name) {
-    const { params } = action.payload;
-    setTimeout(() => next(action), params.msec);
-  } else {
-    return next(action);
+const delayMiddleware = () => {
+  let timeout = null;
+  return store => next => action => {
+    if (action.type === CHANGE_PAGE) {
+      if (timeout) { // Cancellation
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      if (action.payload.name === delayPage.name) {
+        const { params } = action.payload;
+        timeout = setTimeout(() => next(action), params.msec);
+      } else {
+        return next(action);
+      }
+    } else {
+      return next(action);
+    }
   }
 }
 
 export default [
   pageMiddleware,
-  delayMiddleware
+  delayMiddleware()
 ]
