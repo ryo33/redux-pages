@@ -33,6 +33,14 @@
     "test": "mocha",
     "build": "webpack"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryo33/redux-pages.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ryo33/redux-pages/issues"
+  },
+  "homepage": "https://github.com/ryo33/redux-pages#readme",
   "author": "Ryo33 (Ryo Hashiguchi)",
   "license": "MIT"
 }

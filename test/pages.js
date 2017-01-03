@@ -1,8 +1,8 @@
 const chai = require('chai')
-var sinon = require('sinon');
-var sinonChai = require('sinon-chai');
-var expect = chai.expect;
-chai.use(sinonChai);
+const sinon = require('sinon')
+const sinonChai = require('sinon-chai')
+const expect = chai.expect
+chai.use(sinonChai)
 const PathTemplate = require('@ryo33/path-template')
 const Pages = require('../src/pages.js')
 const { changePage } = require('../src/action.js')
