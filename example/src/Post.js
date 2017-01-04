@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 
 export default ({ params, posts }) => {
-  const id = params.id;
-  const { title, text } = posts[id];
+  const id = params.id
+  const { title, text } = posts[id]
   return (
     <div>
       <h2>{title}</h2>

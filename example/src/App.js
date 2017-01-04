@@ -1,51 +1,51 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import {
   rootPage,
   postsPage,
   postPage,
   delayPage,
   errorPage
-} from './pages';
-import Root from './Root';
-import Posts from './Posts';
-import Post from './Post';
-import Delay from './Delay';
-import Error from './Error';
+} from './pages'
+import Root from './Root'
+import Posts from './Posts'
+import Post from './Post'
+import Delay from './Delay'
+import Error from './Error'
 
 
-const mapStateToProps = ({ page, posts }) => ({page, posts});
+const mapStateToProps = ({ page, posts }) => ({page, posts})
 const actionCreators = {
   rootPageAction: rootPage.action,
   postsPageAction: postsPage.action,
   postPageAction: postPage.action,
   delayPageAction: delayPage.action,
-};
+}
 
 class App extends Component {
   router() {
-    const { page, posts, postPageAction } = this.props;
-    const { name, params } = page;
+    const { page, posts, postPageAction } = this.props
+    const { name, params } = page
     switch (name) {
       case rootPage.name:
-        return <Root />;
+        return <Root />
       case postsPage.name:
-        return <Posts posts={posts} actionCreator={postPageAction} />;
+        return <Posts posts={posts} actionCreator={postPageAction} />
       case postPage.name:
-        return <Post params={params} posts={posts} />;
+        return <Post params={params} posts={posts} />
       case delayPage.name:
-        return <Delay params={params} />;
+        return <Delay params={params} />
       case errorPage.name:
-        return <Error />;
+        return <Error />
       default:
-        return <div />;
+        return <div />
     }
   }
 
   render() {
     const {
       page, rootPageAction, postsPageAction, postPageAction, delayPageAction
-    } = this.props;
+    } = this.props
 
     const link = (text, action, params = {}) => (
       <button onClick={() => action(params)}>{text}</button>
@@ -86,8 +86,8 @@ class App extends Component {
         `}</pre>
         {this.router(page)}
       </div>
-    );
+    )
   }
 }
 
-export default connect(mapStateToProps, actionCreators)(App);
+export default connect(mapStateToProps, actionCreators)(App)

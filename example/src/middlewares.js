@@ -1,19 +1,19 @@
-import { CHANGE_PAGE } from 'redux-pages';
+import { CHANGE_PAGE } from 'redux-pages'
 import {
   createMiddleware, createReplacer, composeMiddleware
-} from 'redux-middlewares';
-import { postPage, postsPage, delayPage } from './pages';
-import { postsSelector } from './reducers';
+} from 'redux-middlewares'
+import { postPage, postsPage, delayPage } from './pages'
+import { postsSelector } from './reducers'
 
 const undefinedPostMiddleware = createReplacer(
   CHANGE_PAGE,
   ({getState, action}) => {
     if (action.payload.name === postPage.name) {
-      const { params } = action.payload;
-      const posts = postsSelector(getState());
-      return typeof posts[params.id] === 'undefined';
+      const { params } = action.payload
+      const posts = postsSelector(getState())
+      return typeof posts[params.id] === 'undefined'
     } else {
-      return false;
+      return false
     }
   },
   () => postsPage.action()
@@ -26,8 +26,8 @@ const delayMiddleware = () => {
     ({ nextDispatch, action }) => {
       if (timeout) {
         // Cancellation
-        clearTimeout(timeout);
-        timeout = null;
+        clearTimeout(timeout)
+        timeout = null
       }
       return nextDispatch(action)
     }
@@ -36,8 +36,8 @@ const delayMiddleware = () => {
     CHANGE_PAGE,
     ({ action }) => action.payload.name === delayPage.name,
     ({ nextDispatch, action }) => {
-      const { params } = action.payload;
-      timeout = setTimeout(() => nextDispatch(action), params.msec);
+      const { params } = action.payload
+      timeout = setTimeout(() => nextDispatch(action), params.msec)
     }
   )
   return composeMiddleware(

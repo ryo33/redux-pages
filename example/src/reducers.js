@@ -15,17 +15,17 @@ const initialState = [
     title: "Post3",
     text: "参"
   }
-];
+]
 
 const posts = (state = initialState, action) => {
   switch (action.type) {
     default:
-      return state;
+      return state
   }
-};
+}
 
-export const postsSelector = state => state.posts;
+export const postsSelector = state => state.posts
 
 export const reducers = {
   posts
-};
+}
