@@ -39,6 +39,18 @@ describe('Page', function() {
     })
   })
 
+  describe('check(action)', function() {
+    it('should check an action correctly', function() {
+      expect(page.check(changePage('page1', {a: 'a', b: 'b'}))).to.true
+      expect(page.check(changePage('page1', {}))).to.true
+      expect(page.check(changePage('page2', {a: 'a', b: 'b'}))).to.false
+    })
+
+    it('should allow any actions', function() {
+      expect(page.check({type: 'ANY_ACTION'})).to.false
+    })
+  })
+
   it('should work without this', function() {
     const path = page.path.call(null, {a: 'posts', b: 3})
     expect(path).to.equal('/posts/3')

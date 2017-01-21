@@ -1,5 +1,5 @@
 const PathTemplate = require('@ryo33/path-template')
-const { changePage } = require('../src/action.js')
+const { changePage, CHANGE_PAGE } = require('../src/action.js')
 
 module.exports = (name, template) => ({
   name,
@@ -9,5 +9,8 @@ module.exports = (name, template) => ({
   },
   action(params = {}) {
     return changePage(name, params)
+  },
+  check({ type, payload }) {
+    return type === CHANGE_PAGE && payload.name === name
   }
 })

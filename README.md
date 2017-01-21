@@ -112,6 +112,7 @@ Adds a page.
   - `page.name` The name of the page
   - `page.path([params])` Returns a path with the given `params`
   - `page.action([params])` Returns a action with the given `params`
+  - `page.check(action)` `({ type, payload }) => type === CHANGE_PAGE && payload.name === name`
 
 ### `pages.addChildPage(page, template, name, [mapperObject]) => childPage`
 Adds a child page for the given `page`.
